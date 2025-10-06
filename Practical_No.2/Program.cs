@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Practical_No._2
 {
@@ -10,49 +13,164 @@ namespace Practical_No._2
     {
         static void Main(string[] args)
         {
-            CurrencyRate currencyRate = new CurrencyRate();
-            List<CurrencyRate> currencyRateList = new List<CurrencyRate>();
+            List<CurrencyRate> rates = new List<CurrencyRate>();
 
-            Console.WriteLine("Введите Y или N: ");
-            string result = Console.ReadLine();
-            while (result == "Y")
+            string[] filePath = File.ReadAllLines("TestInputData.txt");
+            FillingInRatesFromFile();
+
+            foreach (CurrencyRate rate in rates)
             {
-                Console.WriteLine("Введите данные курса валют (От_куда Куда Курс Дата)");
-                string resultCurrencyRate = Console.ReadLine();
-                string[] resultCurrencyRateArray = resultCurrencyRate.Split(' ');
-                currencyRate = new CurrencyRate
+                RateSelectionMenu(rate);
+            }
+
+            void RateSelectionMenu(CurrencyRate rate)
+            {
+                Console.WriteLine(
+                    $"Хотители добавить дополнительную информацию к CurrencyRate " +
+                    $"{rate.NameTo}-{rate.NameFrom}? (Yes / No)");
+                var result = Console.ReadLine();
+                if (result == "Yes")
                 {
-                    NameFrom = resultCurrencyRateArray[0],
-                    NameTo = resultCurrencyRateArray[1],
-                    Course = Convert.ToDouble(resultCurrencyRateArray[2]),
-                    Date = resultCurrencyRateArray[3]
-                };
-                currencyRateList.Add(currencyRate);
-
-                Console.WriteLine("Введите Y или N");
-                result = Console.ReadLine();
-                if (result == "N")
-                    break;
+                    AddRateToOutputFile(rate);
+                    AdditionalPropertiesSelectionMenu(rate);
+                }
+                else if (result != "No") Console.WriteLine("Получены некорректные данные");
             }
 
-            foreach (CurrencyRate m in currencyRateList)
+            void AdditionalPropertiesSelectionMenu(CurrencyRate rate)
             {
-                Console.WriteLine($"{m.NameFrom}; {m.NameTo}; {m.Course}; {m.Date}");
+                AddBank(rate);
+                AddTypedCurrencyRate(rate);
+                AddHistoricalRate(rate);
             }
 
-
-            Bank bank = new Bank();
-
-            Console.WriteLine("Введите данные банка ('Наименование' 'Адрес' Телефон)");
-            string resultBank = Console.ReadLine();
-            string[] resultBankArray = resultBank.Split('"');
-            bank = new Bank
+            void FillingInRatesFromFile()
             {
-                Name = resultBankArray[1].Trim(),
-                Address = resultBankArray[3].Trim(),
-                Telephone = resultBankArray[4].Trim(),
-            };
-            Console.WriteLine($"{bank.Name}; {bank.Address}; {bank.Telephone}");
+                int numbarCurrencyRate = Convert.ToInt32(filePath.First());
+                for (int i = 1; i < numbarCurrencyRate+1; i++)
+                {
+                    var rateData = filePath[i].Split(';');
+                    CurrencyRate rate = new CurrencyRate(rateData[0], rateData[1], Convert.ToDouble(rateData[2]), rateData[3]);
+                    rates.Add(rate);
+                }
+            }
+
+            void AddBank(CurrencyRate rate)
+            {
+                Console.WriteLine("Хотители добавить определенный Bank к данному CurrencyRate? (Yes / No)");
+                string selectedResponse = Console.ReadLine();
+                switch (selectedResponse)
+                {
+                    case "Yes":
+                        Console.WriteLine("Введите данные Bank (название; адресс; телефон)");
+                        string result = Console.ReadLine();
+                        var bankData = result
+                            .Split(';')
+                            .Select(s => s.Replace(" ", ""))
+                            .ToArray();
+                        Bank bank = new Bank(rate, bankData[0], bankData[1], bankData[2]);
+                        AddBankToOutputFile(bank);
+                        break;
+                    case "No": break;
+                    default:
+                        Console.WriteLine("Получены некорректные данные");
+                        break;
+                }
+            }
+
+            void AddTypedCurrencyRate(CurrencyRate rate)
+            {
+                Console.WriteLine("Хотители добавить определенный TypedCurrencyRate к данному CurrencyRate? (Yes / No)");
+                string selectedResponse = Console.ReadLine();
+                switch (selectedResponse)
+                {
+                    case "Yes":
+                        Console.WriteLine("Введите данные TypedCurrencyRate (тип операции; категория валюты)");
+                        string result = Console.ReadLine();
+                        var typedCurrencyRateData = result
+                            .Split(';')
+                            .Select(s => s.Replace(" ", ""))
+                            .ToArray();
+                        TypedCurrencyRate typedCurrencyRate = new TypedCurrencyRate(rate, typedCurrencyRateData[0], typedCurrencyRateData[1]);
+                        AddTypedCurrencyRateToOutputFile(typedCurrencyRate);
+                        break;
+                    case "No": break;
+                    default:
+                        Console.WriteLine("Получены некорректные данные");
+                        break;
+                }
+            }
+
+            void AddHistoricalRate(CurrencyRate rate)
+            {
+                Console.WriteLine("Хотители добавить определенный HistoricalRate к данному CurrencyRate? (Yes / No)");
+                string selectedResponse = Console.ReadLine();
+                switch (selectedResponse)
+                {
+                    case "Yes":
+                        Console.WriteLine("Введите данные HistoricalRate (изменение за 24ч; изменение за 7д; волатильность)");
+                        string result = Console.ReadLine();
+                        double[] historicalRatesData = result
+                            .Split(';')
+                            .Select(s => Convert.ToDouble(s.Replace(" ", "")))
+                            .ToArray();
+                        HistoricalRate historicalRate = new HistoricalRate(rate, historicalRatesData[0], historicalRatesData[1], historicalRatesData[2]);
+                        AddHistoricalRateToOutputFile(historicalRate);
+                        break;
+                    case "No": break;
+                    default:
+                        Console.WriteLine("Получены некорректные данные");
+                        break;
+                }
+            }
+
+            void AddRateToOutputFile(CurrencyRate rate)
+            {
+                string result =
+                    $"NameFrom: {rate.NameFrom} \n" +
+                    $"NameTo: {rate.NameTo} \n" +
+                    $"Course: {rate.Course} \n" +
+                    $"Date: {rate.Date}";
+                using (StreamWriter writer = new StreamWriter("TestOutputData.txt", true))
+                {
+                    writer.WriteLine(result);
+                }
+            }
+
+            void AddBankToOutputFile(Bank bank)
+            {
+                string result =
+                    $"Name: {bank.Name} \n" +
+                    $"Address: {bank.Address} \n" +
+                    $"Course: {bank.Telephone}";
+                using (StreamWriter writer = new StreamWriter("TestOutputData.txt", true))
+                {
+                    writer.WriteLine(result);
+                }
+            }
+
+            void AddTypedCurrencyRateToOutputFile(TypedCurrencyRate typedCurrencyRate)
+            {
+                string result =
+                    $"OperationType: {typedCurrencyRate.OperationType} \n" +
+                    $"RateCategory: {typedCurrencyRate.RateCategory}";
+                using (StreamWriter writer = new StreamWriter("TestOutputData.txt", true))
+                {
+                    writer.WriteLine(result);
+                }
+            }
+
+            void AddHistoricalRateToOutputFile(HistoricalRate historicalRate)
+            {
+                string result =
+                    $"Change24h: {historicalRate.Change24h} \n" +
+                    $"Change7d: {historicalRate.Change7d} \n" +
+                    $"Volatility: {historicalRate.Volatility}";
+                using (StreamWriter writer = new StreamWriter("TestOutputData.txt", true))
+                {
+                    writer.WriteLine(result);
+                }
+            }
         }
     }
 }

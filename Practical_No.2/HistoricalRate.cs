@@ -12,5 +12,13 @@ namespace Practical_No._2
         public double Change24h { get; set; } // Изменение за 24 часа
         public double Change7d { get; set; }
         public double Volatility { get; set; } // Волатильность
+
+        public HistoricalRate(CurrencyRate rate, double change24h, double dhange7d, double volatiliry)
+        {
+            Rate = rate;
+            Change24h = change24h;
+            Change7d = dhange7d;
+            Volatility = volatiliry;
+        }
     }
 }

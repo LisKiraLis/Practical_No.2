@@ -11,5 +11,12 @@ namespace Practical_No._2
         public CurrencyRate Rate { get; set; }
         public string OperationType { get; set; } // Покупка, продажа, конверсия
         public string RateCategory { get; set; } // Наличный, безналичный, карточный
+        
+        public TypedCurrencyRate(CurrencyRate rate, string operationType, string rateCategory) 
+        {
+            Rate = rate;
+            OperationType = operationType;
+            RateCategory = rateCategory;
+        }
     }
 }
