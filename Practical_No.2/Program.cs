@@ -43,7 +43,6 @@ namespace Practical_No._2
                 AddBank(rate);
                 AddTypedCurrencyRate(rate);
                 AddHistoricalRate(rate);
-                AddBanknote(rate);
             }
 
             void FillingInRatesFromFile()
@@ -52,7 +51,7 @@ namespace Practical_No._2
                 for (int i = 1; i < numbarCurrencyRate+1; i++)
                 {
                     var rateData = filePath[i].Split(';');
-                    CurrencyRate rate = new CurrencyRate(rateData[0], rateData[1], Convert.ToDouble(rateData[2]), rateData[3]);
+                    CurrencyRate rate = new CurrencyRate { NameFrom = rateData[0], NameTo = rateData[1], Course = Convert.ToDouble(rateData[2]), Date = rateData[3], IsClosed = false };
                     rates.Add(rate);
                 }
             }
@@ -175,39 +174,8 @@ namespace Practical_No._2
             }
 
 
-            void AddBanknote(CurrencyRate rate)
-            {
-                Console.WriteLine("Хотители добавить определенный Banknote к данному CurrencyRate? (Yes / No)");
-                string selectedResponse = Console.ReadLine();
-                switch (selectedResponse)
-                {
-                    case "Yes":
-                        Console.WriteLine("Введите данные Banknote (цвет; размер)");
-                        string result = Console.ReadLine();
-                        var banknoteData = result
-                            .Split(';')
-                            .Select(s => s.Replace(" ", ""))
-                            .ToArray();
-                        Banknote banknote = new Banknote(rate, banknoteData[0], Convert.ToInt32(banknoteData[1]));
-                        AddBanknoteToOutputFile(banknote);
-                        break;
-                    case "No": break;
-                    default:
-                        Console.WriteLine("Получены некорректные данные");
-                        break;
-                }
-            }
+           
 
-            void AddBanknoteToOutputFile(Banknote banknote)
-            {
-                string result =
-                    $"Color: {banknote.Color} \n" +
-                    $"Size: {banknote.Size}";
-                using (StreamWriter writer = new StreamWriter("TestOutputData.txt", true))
-                {
-                    writer.WriteLine(result);
-                }
-            }
         }
     }
 }
