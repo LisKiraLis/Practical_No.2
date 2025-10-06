@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -42,6 +43,7 @@ namespace Practical_No._2
                 AddBank(rate);
                 AddTypedCurrencyRate(rate);
                 AddHistoricalRate(rate);
+                AddBanknote(rate);
             }
 
             void FillingInRatesFromFile()
@@ -166,6 +168,41 @@ namespace Practical_No._2
                     $"Change24h: {historicalRate.Change24h} \n" +
                     $"Change7d: {historicalRate.Change7d} \n" +
                     $"Volatility: {historicalRate.Volatility}";
+                using (StreamWriter writer = new StreamWriter("TestOutputData.txt", true))
+                {
+                    writer.WriteLine(result);
+                }
+            }
+
+
+            void AddBanknote(CurrencyRate rate)
+            {
+                Console.WriteLine("Хотители добавить определенный Banknote к данному CurrencyRate? (Yes / No)");
+                string selectedResponse = Console.ReadLine();
+                switch (selectedResponse)
+                {
+                    case "Yes":
+                        Console.WriteLine("Введите данные Banknote (цвет; размер)");
+                        string result = Console.ReadLine();
+                        var banknoteData = result
+                            .Split(';')
+                            .Select(s => s.Replace(" ", ""))
+                            .ToArray();
+                        Banknote banknote = new Banknote(rate, banknoteData[0], Convert.ToInt32(banknoteData[1]));
+                        AddBanknoteToOutputFile(banknote);
+                        break;
+                    case "No": break;
+                    default:
+                        Console.WriteLine("Получены некорректные данные");
+                        break;
+                }
+            }
+
+            void AddBanknoteToOutputFile(Banknote banknote)
+            {
+                string result =
+                    $"Color: {banknote.Color} \n" +
+                    $"Size: {banknote.Size}";
                 using (StreamWriter writer = new StreamWriter("TestOutputData.txt", true))
                 {
                     writer.WriteLine(result);
