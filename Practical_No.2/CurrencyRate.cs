@@ -12,13 +12,15 @@ namespace Practical_No._2
         public string NameTo { get; set; }
         public double Course { get; set; }
         public string Date { get; set; }
+        public bool IsClosed { get; set; }
 
-        public CurrencyRate(string nameFrom, string nameTo, double course, string data)
+        public CurrencyRate(string nameFrom, string nameTo, double course, string data, bool isClosed)
         {
             NameFrom = nameFrom;
             NameTo = nameTo;
             Course = course;
             Date = data;
+            IsClosed = isClosed;
         }
     }
 }

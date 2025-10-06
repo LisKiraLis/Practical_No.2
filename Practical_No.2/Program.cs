@@ -50,7 +50,7 @@ namespace Practical_No._2
                 for (int i = 1; i < numbarCurrencyRate+1; i++)
                 {
                     var rateData = filePath[i].Split(';');
-                    CurrencyRate rate = new CurrencyRate(rateData[0], rateData[1], Convert.ToDouble(rateData[2]), rateData[3]);
+                    CurrencyRate rate = new CurrencyRate(rateData[0], rateData[1], Convert.ToDouble(rateData[2]), rateData[3], true);
                     rates.Add(rate);
                 }
             }
