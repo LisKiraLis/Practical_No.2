@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bank.cs" />
+    <Compile Include="Banknote.cs" />
     <Compile Include="CurrencyRate.cs" />
     <Compile Include="HistoricalRate.cs" />
     <Compile Include="Program.cs" />
